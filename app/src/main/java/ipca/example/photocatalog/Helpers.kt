@@ -2,12 +2,10 @@ package ipca.example.photocatalog
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Environment
 import android.util.Log
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStream
+import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -50,4 +48,10 @@ fun saveImageToCard( context: Context, bitmap : Bitmap) : String {
     }
 
     return photoDir.toString()
+}
+
+fun loadImageFromCard( path : String) : Bitmap? {
+    var bitmap :Bitmap? = null
+    bitmap = BitmapFactory.decodeFile(path)
+    return bitmap
 }

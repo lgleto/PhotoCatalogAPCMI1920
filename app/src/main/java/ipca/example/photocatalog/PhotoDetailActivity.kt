@@ -32,7 +32,8 @@ class PhotoDetailActivity : AppCompatActivity() {
         floatingActionButtonTakePhoto.setOnClickListener {
 
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            startActivityForResult(intent, 1001)
+            startActivityForResult(intent, REQUEST_CODE_PHOTO)
+
 
         }
 
@@ -76,7 +77,7 @@ class PhotoDetailActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if(resultCode === Activity.RESULT_OK){
-            if (requestCode == 1001){
+            if (requestCode == REQUEST_CODE_PHOTO){
                 // new photo has arrive
                 data?.extras?.let {
                     bitmap = it.get("data") as Bitmap
@@ -98,5 +99,7 @@ class PhotoDetailActivity : AppCompatActivity() {
         val PHOTO_LATITUDE      = "photo_latitude"
         val PHOTO_LONGITUDE     = "photo_longitude"
         val PHOTO_DESCRIPTION   = "photo_description"
-    }
+
+        const val REQUEST_CODE_PHOTO = 23524
+     }
 }
