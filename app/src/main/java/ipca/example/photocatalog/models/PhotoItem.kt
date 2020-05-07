@@ -33,6 +33,16 @@ class PhotoItem {
         this.gpsLatitude = gpsLatitude
         this.gpsLongitude = gpsLongitude
     }
+
+    @Ignore
+    constructor() {
+        this.uid = System.currentTimeMillis()
+        this.filePath = ""
+        this.description = ""
+        this.date = Date()
+        this.gpsLatitude = 0.0
+        this.gpsLongitude = 0.0
+    }
 }
 
 @Dao

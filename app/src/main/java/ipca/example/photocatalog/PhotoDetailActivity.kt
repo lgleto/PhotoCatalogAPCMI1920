@@ -4,6 +4,7 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.os.AsyncTask
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.Menu
@@ -12,7 +13,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import ipca.example.photocatalog.models.AppDatabase
+import ipca.example.photocatalog.models.Converters
+import ipca.example.photocatalog.models.PhotoItem
 import kotlinx.android.synthetic.main.activity_photo_detail.*
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 import java.util.*
 
 
@@ -59,13 +65,22 @@ class PhotoDetailActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_add){
             val intentResult = Intent()
-            intentResult.putExtra(PHOTO_PATH        , photoPath )
-            intentResult.putExtra(PHOTO_DATE        , dateToString(date!!))
-            intentResult.putExtra(PHOTO_LATITUDE    , latitude)
-            intentResult.putExtra(PHOTO_LONGITUDE   , longitude)
-            intentResult.putExtra(PHOTO_DESCRIPTION , editTextDescription.text.toString())
-            setResult(Activity.RESULT_OK, intentResult)
-            finish()
+
+            val photoItem = PhotoItem()
+            photoItem.description = editTextDescription.text.toString()
+            photoItem.date = date!!
+            photoItem.filePath = photoPath
+            photoItem.gpsLatitude = latitude
+            photoItem.gpsLongitude = longitude
+
+            doAsync{
+                AppDatabase.getDatabase(this@PhotoDetailActivity)?.photoItemDao()?.insert(photoItem)
+                uiThread {
+                    setResult(Activity.RESULT_OK, intentResult)
+                    finish()
+                }
+            }
+
             return true
         }
         return super.onOptionsItemSelected(item)
@@ -83,7 +98,7 @@ class PhotoDetailActivity : AppCompatActivity() {
                     bitmap = it.get("data") as Bitmap
                     imageViewPhoto.setImageBitmap(bitmap)
                     date = Date()
-                    textViewDate.text = dateToString(date!!)
+                    textViewDate.text = Converters().dateToString(date!!)
                     photoPath = saveImageToCard(this, bitmap!!)
 
 

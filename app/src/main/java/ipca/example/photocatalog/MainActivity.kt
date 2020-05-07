@@ -3,6 +3,7 @@ package ipca.example.photocatalog
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.os.AsyncTask
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -15,12 +16,14 @@ import ipca.example.photocatalog.models.PhotoItem
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.row_photo.view.*
 import kotlinx.android.synthetic.main.row_photo.view.imageViewPhoto
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 
 import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
 
-    val photos : MutableList<PhotoItem> = ArrayList<PhotoItem>()
+    var photos : MutableList<PhotoItem> = ArrayList<PhotoItem>()
 
     var adapter : PhotosAdapter = PhotosAdapter()
 
@@ -38,7 +41,20 @@ class MainActivity : AppCompatActivity() {
            // startActivity(intent)
             startActivityForResult(intent, 1002)
         }
-        var photos : List<PhotoItem> = AppDatabase.getDatabase(this)?.photoItemDao()?.getAll()
+
+       refreshDB()
+
+    }
+
+    fun refreshDB () {
+
+        doAsync {
+            var photosdb : List<PhotoItem> = AppDatabase.getDatabase(this@MainActivity)?.photoItemDao()?.getAll() ?: ArrayList<PhotoItem>()
+            photos = photosdb.toMutableList()
+            uiThread {
+                adapter.notifyDataSetChanged()
+            }
+        }
     }
 
     inner class PhotosAdapter : BaseAdapter() {
@@ -78,22 +94,7 @@ class MainActivity : AppCompatActivity() {
             if (requestCode == 1002){
                 // new photo has arrive
                 data?.extras?.let {
-                    val description = it.getString(PhotoDetailActivity.PHOTO_DESCRIPTION)
-                    val date        = it.getString(PhotoDetailActivity.PHOTO_DATE)
-                    val path        = it.getString(PhotoDetailActivity.PHOTO_PATH)
-                    val latitude    = it.getDouble(PhotoDetailActivity.PHOTO_LATITUDE)
-                    val logigitude  = it.getDouble(PhotoDetailActivity.PHOTO_LONGITUDE)
-
-                    val photoItem = PhotoItem()
-                    photoItem.description = description
-                    photoItem.date = stringToDate(date!!)
-                    photoItem.filePath = path
-                    photoItem.gpsLatitude = latitude
-                    photoItem.gpsLongitude = logigitude
-
-                    photos.add(photoItem)
-
-                    adapter.notifyDataSetChanged()
+                    refreshDB()
                 }
             }
         }
