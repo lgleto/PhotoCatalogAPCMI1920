@@ -118,7 +118,7 @@ class PhotoDetailActivity : AppCompatActivity() {
                     bitmap!!.compress(Bitmap.CompressFormat.JPEG, 100, baos)
                     val data = baos.toByteArray()
 
-                    var uploadTask = mountainsRef.putBytes(data)
+                    var uploadTask = mountainImagesRef.putBytes(data)
                     uploadTask.addOnFailureListener {
                         // Handle unsuccessful uploads
                     }.addOnSuccessListener {
